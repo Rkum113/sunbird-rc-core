@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       k8s-app: keycloak-service
-  strategy: {}
+  
   template:
     metadata:
       labels:

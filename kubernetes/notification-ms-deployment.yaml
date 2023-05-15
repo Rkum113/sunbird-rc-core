@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: notification-ms
+  name: notification-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-ms
+  template:
+    metadata:
+      labels:
+        app: notification-ms
+    spec:
+      containers:
+        - image: 'dockerhub/sunbird-rc-notification-service:v0.0.13'
+          livenessProbe:
+            exec:
+              command:
+                - wget -nv -t1 --spider http://localhost:8765/notification-service/v1/health || exit 1
+            failureThreshold: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: notification-ms
+          ports:
+            - containerPort: 8765
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: notification-ms
+  name: notification-ms
+spec:
+  ports:
+    - name: "8765"
+      port: 8765
+      targetPort: 8765
+  selector:
+    app: notification-ms

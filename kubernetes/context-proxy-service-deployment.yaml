@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: context-proxy-service
+  name: context-proxy-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: context-proxy-service
+  template:
+    metadata:
+      labels:
+        app: context-proxy-service
+    spec:
+      containers:
+        - image: dockerhub/sunbird-rc-context-proxy-service
+          livenessProbe:
+            exec:
+              command:
+                - curl -f localhost:4400/health
+            failureThreshold: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: context-proxy-service
+          ports:
+            - containerPort: 4400
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: context-proxy-service
+  name: context-proxy-service
+spec:
+  ports:
+    - name: "4400"
+      port: 4400
+      targetPort: 4400
+  selector:
+    app: context-proxy-service

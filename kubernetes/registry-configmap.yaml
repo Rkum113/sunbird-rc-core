@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: configmap
+metadata:
+  name: registry-configmap
+data:
+  async_enabled: "false"
+  authentication_enabled: "true"
+  certificate_health_check_url: http://certificate-api:8078/health

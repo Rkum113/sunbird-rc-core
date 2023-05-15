@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap
+data:
+  connectionInfo_uri: jdbc:postgresql://db:5432/registry
+  connectionInfo_username: postgres
+  sunbirdrc_url: http://registry:8081
+  POSTGRES_DB: registry
+  POSTGRES_USER:  postgres
+  DB_ADDR: db
+  POSTGRES_PORT: "5432"
+  DB_VENDOR: postgres
+  CONFIG_BASE_PATH: /etc/keys
+

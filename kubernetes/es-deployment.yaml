@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: es
+  name: es
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: es
+  template:
+    metadata:
+      labels:
+        app: es
+    spec:
+      containers:
+        - env:
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: es-secrets
+                  key: ELASTIC_PASSWORD
+            - name: ES_JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: es-configmap
+                  key: ES_JAVA_OPTS
+            - name: discovery.type
+              valueFrom:
+                configMapKeyRef:
+                  name: es-configmap
+                  key: discovery.type
+            - name: xpack.security.enabled
+              valueFrom:
+                configMapKeyRef:
+                  name: es-configmap
+                  key: xpack.security.enabled
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - localhost:9200/_cluster/health
+                - --header
+                - 'Authorization: Basic ZWxhc3RpYzpEa0llZFBQU0Ni'
+            failureThreshold: 4
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: es
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: es
+  name: es
+spec:
+  ports:
+    - name: "9200"
+      port: 9200
+      targetPort: 9200
+    - name: "9300"
+      port: 9300
+      targetPort: 9300
+  selector:
+    app: es

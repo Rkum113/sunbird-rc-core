@@ -11,7 +11,7 @@ import (
 )
 
 func notifyConsumer() {
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
+	c, err := kafka.NewConsumer(&kafka.configmap{
 		"bootstrap.servers":  config.Config.Kafka.BootstrapServers,
 		"group.id":           "notifier",
 		"auto.offset.reset":  "earliest",

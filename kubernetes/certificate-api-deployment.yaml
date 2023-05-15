@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: certificate-api
+  name: certificate-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: certificate-api
+  template:
+    metadata:
+      labels:
+        app: certificate-api
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "8078"
+          image: 'dockerhub/sunbird-rc-certificate-api:v0.0.13'
+          livenessProbe:
+            exec:
+              command:
+                - wget -nv -t1 --spider http://localhost:8078/health || exit 1
+            failureThreshold: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: certificate-api
+          ports:
+            - containerPort: 8078
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: certificate-api
+  name: certificate-api
+spec:
+  ports:
+    - name: "8078"
+      port: 8078
+      targetPort: 8078
+  selector:
+    app: certificate-api

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: claim-ms
+  name: claim-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: claim-ms
+  template:
+    metadata:
+      labels:
+        app: claim-ms
+    spec:
+      containers:
+        - env:
+            - name: connectionInfo_password
+              valueFrom:
+                secretKeyRef:
+                  name: mysecret
+                  key: connectionInfo_password
+            - name: connectionInfo_uri
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key:  connectionInfo_uri
+            - name: connectionInfo_username
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key:  connectionInfo_username
+            - name: sunbirdrc_url
+              valueFrom:  
+                configMapKeyRef:
+                  name: my-configmap
+                  key: sunbirdrc_url  
+          image: 'dockerhub/sunbird-rc-claim-ms:v0.0.13'
+          livenessProbe:
+            exec:
+              command:
+                - wget -nv -t1 --spider http://localhost:8082/health || exit 1
+            failureThreshold: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: claim-ms
+          ports:
+            - containerPort: 8082
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: claim-ms
+  name: claim-ms
+spec:
+  ports:
+    - name: "8082"
+      port: 8082
+      targetPort: 8082
+  selector:
+    app: claim-ms

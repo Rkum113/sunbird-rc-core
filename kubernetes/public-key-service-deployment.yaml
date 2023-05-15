@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: public-key-service
+  name: public-key-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: public-key-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: public-key-service
+    spec:
+      containers:
+        - env:
+            - name: CONFIG_BASE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: CONFIG_BASE_PATH
+          image: dockerhub/sunbird-rc-public-key-service
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - localhost:3300/public-key-service/api/v1/health
+            failureThreshold: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: public-key-service
+          ports:
+            - containerPort: 3300
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/keys
+              name: public-key-service-claim0
+      restartPolicy: Always
+      volumes:
+        - name: public-key-service-claim0
+          persistentVolumeClaim:
+            claimName: public-key-service-claim0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: public-key-service
+  name: public-key-service
+spec:
+  ports:
+    - name: "3300"
+      port: 3300
+      targetPort: 3300
+  selector:
+    app: public-key-service
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: public-key-service-claim0
+  name: public-key-service-claim0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: certificate-signer
+  name: certificate-signer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: certificate-signer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: certificate-signer
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "8079"
+          image: 'dockerhub/sunbird-rc-certificate-signer:v0.0.13'
+          livenessProbe:
+            exec:
+              command:
+                - curl -f http://localhost:8079/health || exit 1
+            failureThreshold: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: certificate-signer
+          ports:
+            - containerPort: 8079
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/signer
+              name: certificate-signer-claim0
+      restartPolicy: Always
+      volumes:
+        - name: certificate-signer-claim0
+          persistentVolumeClaim:
+            claimName: certificate-signer-claim0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: certificate-signer-claim0
+  name: certificate-signer-claim0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: certificate-signer
+  name: certificate-signer
+spec:
+  ports:
+    - name: "8079"
+      port: 8079
+      targetPort: 8079
+  selector:
+    app: certificate-signer
+status:
+  loadBalancer: {}
