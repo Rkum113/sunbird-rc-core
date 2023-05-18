@@ -43,5 +43,6 @@ spec:
     - name: "8078"
       port: 8078
       targetPort: 8078
+  type: NodePort
   selector:
     app: certificate-api

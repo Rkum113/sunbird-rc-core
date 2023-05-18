@@ -43,8 +43,8 @@ spec:
       restartPolicy: Always
       volumes:
         - name: public-key-service-claim0
-          persistentVolumeClaim:
-            claimName: public-key-service-claim0
+          configMap:
+            name: public-key-service-configmap
 ---
 apiVersion: v1
 kind: Service
@@ -57,18 +57,6 @@ spec:
     - name: "3300"
       port: 3300
       targetPort: 3300
+  type: NodePort
   selector:
     app: public-key-service
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  labels:
-    app: public-key-service-claim0
-  name: public-key-service-claim0
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi

@@ -65,6 +65,7 @@ spec:
     - name: "8079"
       port: 8079
       targetPort: 8079
+  type: NodePort
   selector:
     app: certificate-signer
 status:

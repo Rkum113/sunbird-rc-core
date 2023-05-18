@@ -42,5 +42,6 @@ spec:
     - name: "80"
       port: 80
       targetPort: 80
+  type: NodePort
   selector:
     app: nginx

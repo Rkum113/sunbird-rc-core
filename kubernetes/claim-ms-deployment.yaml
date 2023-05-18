@@ -17,10 +17,7 @@ spec:
       containers:
         - env:
             - name: connectionInfo_password
-              valueFrom:
-                secretKeyRef:
-                  name: mysecret
-                  key: connectionInfo_password
+              value: postgres
             - name: connectionInfo_uri
               valueFrom:
                 configMapKeyRef:
@@ -61,5 +58,6 @@ spec:
     - name: "8082"
       port: 8082
       targetPort: 8082
+  type: NodePort
   selector:
     app: claim-ms

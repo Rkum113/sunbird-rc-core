@@ -77,7 +77,8 @@ spec:
           livenessProbe:
             exec:
               command:
-                 ["curl", "-f", "http://localhost:8080/"]
+                - curl -f http://localhost:9990/ || exit 1
+            initialDelaySeconds: 100
             failureThreshold: 10
             periodSeconds: 30
             timeoutSeconds: 10
@@ -87,13 +88,13 @@ spec:
             - containerPort: 9990
           resources: {}
           volumeMounts:
-            - mountPath: /opt/jboss/keycloak/imports
-              name: keycloak-claim0
+            - name: convolume
+              mountPath: /opt/jboss/keycloak/imports
       restartPolicy: Always
       volumes:
-        - name: keycloak-claim0
-          persistentVolumeClaim:
-            claimName: keycloak-claim0
+        - name: convolume
+          configMap:
+            name: keycloak-configmap
 ---
 apiVersion: v1
 kind: Service
@@ -106,21 +107,11 @@ spec:
     - name: "8080"
       port: 8080
       targetPort: 8080
-    # - name: "9990"
-    #   port: 9990
-    #   targetPort: 9990
+    - name: "9990"
+      port: 9990
+      targetPort: 9990
+  type: NodePort
   selector:
     app: keycloak
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  labels:
-    app: keycloak-claim0
-  name: keycloak-claim0
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi
+
+

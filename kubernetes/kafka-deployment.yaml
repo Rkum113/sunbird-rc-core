@@ -47,16 +47,6 @@ spec:
                   name: kafka-configmap
                   key: KAFKA_ZOOKEEPER_CONNECT
           image: confluentinc/cp-kafka:latest
-          livenessProbe:
-            exec:
-              command:
-                - kafka-topics
-                - --list
-                - --zookeeper
-                - zookeeper:2181
-            failureThreshold: 10
-            periodSeconds: 30
-            timeoutSeconds: 10
           name: kafka
           ports:
             - containerPort: 9092
@@ -66,13 +56,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: kafka
-  name: kafka
+  name: kafka-1
 spec:
   ports:
     - name: "9092"
       port: 9092
       targetPort: 9092
-  selector:
-    app: kafka
+  type: NodePort

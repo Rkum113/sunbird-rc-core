@@ -40,5 +40,6 @@ spec:
     - name: "4400"
       port: 4400
       targetPort: 4400
+  type: NodePort
   selector:
     app: context-proxy-service

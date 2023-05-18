@@ -32,7 +32,7 @@ spec:
                   key: MINIO_ROOT_PASSWORD
             - name: MINIO_ROOT_USER
               valueFrom: 
-                secretKeyRef:
+                configMapKeyRef:
                   name: file-storage-configmap
                   key: MINIO_ROOT_USER
           image: quay.io/minio/minio
@@ -71,6 +71,7 @@ spec:
     - name: "9001"
       port: 9001
       targetPort: 9001
+  type: NodePort
   selector:
     app: file-storage
 ---
